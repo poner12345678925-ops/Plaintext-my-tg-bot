@@ -452,11 +452,9 @@ async def list_player_complaints(message: Message):
     if role not in ["admin", "owner"]:
         return
 
-    # Доступные нерассмотренные жалобы
     cursor.execute("SELECT id, user_id, target_name, text FROM complaints WHERE target_type = 'player' AND status = 'pending'")
     pending_rows = cursor.fetchall()
 
-    # Жалобы, которые уже в работе у этого админа
     cursor.execute("SELECT id, user_id, target_name, text FROM complaints WHERE target_type = 'player' AND status = 'in_progress' AND assigned_admin_id = ?", (message.from_user.id,))
     my_in_progress_rows = cursor.fetchall()
     
@@ -518,19 +516,16 @@ async def process_complaint_id_input(message: Message):
         
     cid, author_id, target_type, target_name, text_val, vid, status, admin_id = row
 
-    # Проверка доступа к жалобе на админа
     if target_type == "admin" and role != "owner":
         await message.answer("⛔ Жалобы на администраторов может рассматривать только Владелец.")
         return
 
-    # Если жалоба свободна — админ берёт её в работу
     if status == "pending":
         cursor.execute("UPDATE complaints SET status = 'in_progress', assigned_admin_id = ? WHERE id = ?", (message.from_user.id, cid))
         conn.commit()
         status = "in_progress"
         admin_id = message.from_user.id
         
-        # Уведомляем игрока в ЛС
         try:
             await bot.send_message(author_id, f"🛠 **Ваша жалоба #{cid} взята в работу администратором!**\nОжидайте вердикта или ответа в этом чате.", parse_mode="Markdown")
         except Exception:
@@ -541,7 +536,6 @@ async def process_complaint_id_input(message: Message):
         await message.answer(f"⚠️ Жалобу #{cid} уже рассматривает другой администратор.")
         return
 
-    # Отправляем карточку жалобы с видео
     st_text = "В работе" if status == "in_progress" else "Ожидает"
     caption_text = f"📌 **Карточка жалобы #{cid}** [{st_text}]\nКому: {target_name}\nОт ID: {author_id}\n\nСуть: {text_val}"
     
