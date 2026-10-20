@@ -289,17 +289,14 @@ def target_type_kb():
         [InlineKeyboardButton(text="🛡 На администратора", callback_data="type_admin")]
     ])
 
-def complaint_action_kb(complaint_id: int, status: str):
-    buttons = []
-    if status == "pending":
-        buttons.append([InlineKeyboardButton(text="🛠 Взять в работу", callback_data=f"take_{complaint_id}")])
-    elif status == "in_progress":
-        buttons.append([InlineKeyboardButton(text="💬 Ответить / Чат", callback_data=f"chat_{complaint_id}")])
-        buttons.append([
+def complaint_in_work_kb(complaint_id: int):
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="💬 Ответить / Чат", callback_data=f"chat_{complaint_id}")],
+        [
             InlineKeyboardButton(text="✅ Принять", callback_data=f"status_accept_{complaint_id}"),
             InlineKeyboardButton(text="❌ Отклонить", callback_data=f"status_reject_{complaint_id}")
-        ])
-    return InlineKeyboardMarkup(inline_keyboard=buttons)
+        ]
+    ])
 
 # --- ROUTER SETUP ---
 router = Router()
@@ -334,7 +331,6 @@ async def cmd_start(message: Message, state: FSMContext):
 @router.message(F.text == "📜 Правила")
 async def show_rules(message: Message):
     rules_text = get_setting("rules")
-    # Текст правил может быть длинным, разделяем при необходимости
     if len(rules_text) > 4000:
         for x in range(0, len(rules_text), 4000):
             await message.answer(rules_text[x:x+4000], parse_mode="Markdown")
@@ -394,7 +390,7 @@ async def process_broadcast(message: Message, state: FSMContext):
         try:
             await bot.send_message(u[0], f"📢 **ОБЪЯВЛЕНИЕ ОТ ВЛАДЕЛЬЦА:**\n\n{text}", parse_mode="Markdown")
             count += 1
-            await asyncio.sleep(0.05) # Небольшая пауза чтобы Telegram не забанил
+            await asyncio.sleep(0.05)
         except Exception:
             pass
             
@@ -440,37 +436,48 @@ async def process_video(message: Message, state: FSMContext):
         (user_id, data['target_type'], data['target_name'], data['text'], video_id)
     )
     conn.commit()
+    complaint_id = cursor.lastrowid
     
     await state.clear()
-    await message.answer("✅ Ваша жалоба успешно создана и отправлена в систему!", reply_markup=main_keyboard(get_user_role(user_id, message.from_user.username or "")))
+    await message.answer(f"✅ Ваша жалоба **#{complaint_id}** успешно создана и отправлена в систему!", reply_markup=main_keyboard(get_user_role(user_id, message.from_user.username or "")))
 
 @router.message(ComplaintStates.waiting_for_video)
 async def process_wrong_video(message: Message):
     await message.answer("❌ Без видео-доказательства жалоба не может быть принята. Пожалуйста, отправьте видеофайл.")
 
-# --- LISTS & MANAGEMENT ---
+# --- COMPLAINTS LISTS & TAKING BY NUMBER ---
 @router.message(F.text == "📋 Жалобы на игроков")
 async def list_player_complaints(message: Message):
     role = get_user_role(message.from_user.id, message.from_user.username or "")
     if role not in ["admin", "owner"]:
         return
 
-    cursor.execute("SELECT id, user_id, target_name, text, status, assigned_admin_id, video_file_id FROM complaints WHERE target_type = 'player' AND (status = 'pending' OR assigned_admin_id = ?)", (message.from_user.id,))
-    rows = cursor.fetchall()
+    # Доступные нерассмотренные жалобы
+    cursor.execute("SELECT id, user_id, target_name, text FROM complaints WHERE target_type = 'player' AND status = 'pending'")
+    pending_rows = cursor.fetchall()
+
+    # Жалобы, которые уже в работе у этого админа
+    cursor.execute("SELECT id, user_id, target_name, text FROM complaints WHERE target_type = 'player' AND status = 'in_progress' AND assigned_admin_id = ?", (message.from_user.id,))
+    my_in_progress_rows = cursor.fetchall()
     
-    if not rows:
-        await message.answer("📭 Доступных открытых жалоб на игроков нет.")
+    if not pending_rows and not my_in_progress_rows:
+        await message.answer("📭 На данный момент нет доступных открытых жалоб.")
         return
-        
-    for row in rows:
-        cid, uid, tname, text, status, admin_id, vid = row
-        st_text = "Ожидает" if status == "pending" else "В работе"
-        msg = f"📌 **Жалоба #{cid}** [{st_text}]\nИгрок: {tname}\nОт ID: {uid}\nТекст: {text}"
-        
-        if vid:
-            await message.answer_video(vid, caption=msg, reply_markup=complaint_action_kb(cid, status), parse_mode="Markdown")
-        else:
-            await message.answer(msg, reply_markup=complaint_action_kb(cid, status), parse_mode="Markdown")
+
+    text_msg = "📋 **СПИСОК ЖАЛОБ НА ИГРОКОВ**\n\n"
+    
+    if pending_rows:
+        text_msg += "⏳ **Ожидают рассмотрения (свободные):**\n"
+        for r in pending_rows:
+            text_msg += f"• **Жалоба #{r[0]}** | На игрока: `{r[2]}`\n  Суть: _{r[3]}_\n\n"
+            
+    if my_in_progress_rows:
+        text_msg += "🛠 **Взяты в работу вами:**\n"
+        for r in my_in_progress_rows:
+            text_msg += f"• **Жалоба #{r[0]}** | На игрока: `{r[2]}`\n\n"
+
+    text_msg += "👉 **Чтобы взять жалобу в работу, просто отправьте её номер цифрами в чат** (например: `123`):"
+    await message.answer(text_msg, parse_mode="Markdown")
 
 @router.message(F.text == "👑 Жалобы на админов")
 async def list_admin_complaints(message: Message):
@@ -478,22 +485,70 @@ async def list_admin_complaints(message: Message):
     if role != "owner":
         return
 
-    cursor.execute("SELECT id, user_id, target_name, text, status, assigned_admin_id, video_file_id FROM complaints WHERE target_type = 'admin'")
+    cursor.execute("SELECT id, user_id, target_name, text, status FROM complaints WHERE target_type = 'admin'")
     rows = cursor.fetchall()
     
     if not rows:
         await message.answer("📭 Жалоб на администраторов нет.")
         return
         
-    for row in rows:
-        cid, uid, tname, text, status, admin_id, vid = row
+    text_msg = "🛡 **СПИСОК ЖАЛОБ НА АДМИНИСТРАТОРОВ**\n\n"
+    for r in rows:
         st_map = {"pending": "Ожидает", "in_progress": "В работе", "accepted": "Принята", "rejected": "Отклонена"}
-        msg = f"🛡 **Жалоба на Админа #{cid}** [{st_map.get(status, status)}]\nАдмин: {tname}\nОт ID: {uid}\nТекст: {text}"
+        text_msg += f"• **Жалоба #{r[0]}** [{st_map.get(r[4], r[4])}] | На админа: `{r[2]}`\n  Суть: _{r[3]}_\n\n"
+
+    text_msg += "👉 **Чтобы открыть жалобу, отправьте её номер цифрами в чат:**"
+    await message.answer(text_msg, parse_mode="Markdown")
+
+# --- HANDLER FOR NUMBERS (TAKING A COMPLAINT BY ID) ---
+@router.message(F.text.isdigit())
+async def process_complaint_id_input(message: Message):
+    role = get_user_role(message.from_user.id, message.from_user.username or "")
+    if role not in ["admin", "owner"]:
+        return
+
+    complaint_id = int(message.text.strip())
+    
+    cursor.execute("SELECT id, user_id, target_type, target_name, text, video_file_id, status, assigned_admin_id FROM complaints WHERE id = ?", (complaint_id,))
+    row = cursor.fetchone()
+    
+    if not row:
+        await message.answer(f"❌ Жалоба с номером **#{complaint_id}** не найдена.", parse_mode="Markdown")
+        return
         
-        if vid:
-            await message.answer_video(vid, caption=msg, reply_markup=complaint_action_kb(cid, status), parse_mode="Markdown")
-        else:
-            await message.answer(msg, reply_markup=complaint_action_kb(cid, status), parse_mode="Markdown")
+    cid, author_id, target_type, target_name, text_val, vid, status, admin_id = row
+
+    # Проверка доступа к жалобе на админа
+    if target_type == "admin" and role != "owner":
+        await message.answer("⛔ Жалобы на администраторов может рассматривать только Владелец.")
+        return
+
+    # Если жалоба свободна — админ берёт её в работу
+    if status == "pending":
+        cursor.execute("UPDATE complaints SET status = 'in_progress', assigned_admin_id = ? WHERE id = ?", (message.from_user.id, cid))
+        conn.commit()
+        status = "in_progress"
+        admin_id = message.from_user.id
+        
+        # Уведомляем игрока в ЛС
+        try:
+            await bot.send_message(author_id, f"🛠 **Ваша жалоба #{cid} взята в работу администратором!**\nОжидайте вердикта или ответа в этом чате.", parse_mode="Markdown")
+        except Exception:
+            pass
+            
+        await message.answer(f"✅ Вы успешно взяли в работу жалобу **#{cid}**! Игроку отправлено уведомление.", parse_mode="Markdown")
+    elif status == "in_progress" and admin_id != message.from_user.id and role != "owner":
+        await message.answer(f"⚠️ Жалобу #{cid} уже рассматривает другой администратор.")
+        return
+
+    # Отправляем карточку жалобы с видео
+    st_text = "В работе" if status == "in_progress" else "Ожидает"
+    caption_text = f"📌 **Карточка жалобы #{cid}** [{st_text}]\nКому: {target_name}\nОт ID: {author_id}\n\nСуть: {text_val}"
+    
+    if vid:
+        await message.answer_video(vid, caption=caption_text, reply_markup=complaint_in_work_kb(cid), parse_mode="Markdown")
+    else:
+        await message.answer(caption_text, reply_markup=complaint_in_work_kb(cid), parse_mode="Markdown")
 
 @router.message(F.text == "📊 Все жалобы")
 async def owner_all_complaints(message: Message):
@@ -513,33 +568,14 @@ async def owner_all_complaints(message: Message):
         res += f"• **#{r[0]}** ({'Админ' if r[1]=='admin' else 'Игрок'} {r[2]}) - Статус: `{r[3]}` (Админ ID: {r[4] or 'Нет'})\n"
     await message.answer(res, parse_mode="Markdown")
 
-@router.callback_query(F.data.startswith("take_"))
-async def take_complaint(callback: CallbackQuery):
-    cid = int(callback.data.split("_")[1])
-    admin_id = callback.from_user.id
-    
-    cursor.execute("SELECT status FROM complaints WHERE id = ?", (cid,))
-    row = cursor.fetchone()
-    if not row or row[0] != "pending":
-        await callback.answer("Эта жалоба уже взята другим администратором!", show_alert=True)
-        return
-        
-    cursor.execute("UPDATE complaints SET status = 'in_progress', assigned_admin_id = ? WHERE id = ?", (admin_id, cid))
-    conn.commit()
-    
-    await callback.answer("Вы успешно взяли жалобу в работу!")
-    if callback.message.caption:
-        await callback.message.edit_caption(caption=callback.message.caption + "\n\n🛠 **Статус:** Взята в работу вами.", reply_markup=complaint_action_kb(cid, "in_progress"), parse_mode="Markdown")
-    else:
-        await callback.message.edit_text(callback.message.text + "\n\n🛠 **Статус:** Взята в работу вами.", reply_markup=complaint_action_kb(cid, "in_progress"), parse_mode="Markdown")
-
+# --- ACTIONS IN CHAT AND CHANGE STATUS ---
 @router.callback_query(F.data.startswith("chat_"))
 async def open_complaint_chat(callback: CallbackQuery, state: FSMContext):
     cid = int(callback.data.split("_")[1])
     await state.set_state(AdminChatState.chatting)
     await state.update_data(active_complaint_id=cid)
     
-    await callback.message.answer(f"💬 Вы вошли в чат по жалобе #{cid}.\nВсе ваши сообщения будут отправляться автору жалобы.\n\nЧтобы выйти, нажмите кнопку ниже.", reply_markup=ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text="❌ Выйти из чата жалобы")]], resize_keyboard=True))
+    await callback.message.answer(f"💬 Вы вошли в чат по жалобе #{cid}.\nВсе ваши текстовые сообщения будут отправляться автору жалобы.\n\nЧтобы выйти, нажмите кнопку ниже.", reply_markup=ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text="❌ Выйти из чата жалобы")]], resize_keyboard=True))
     await callback.answer()
 
 @router.message(AdminChatState.chatting)
@@ -586,6 +622,7 @@ async def change_status(callback: CallbackQuery):
         await callback.message.edit_text(callback.message.text + f"\n\nРешение: **{status_ru}**", parse_mode="Markdown")
     await callback.answer("Статус жалобы обновлен!")
 
+# --- OWNER ADMIN MANAGEMENT ---
 @router.message(F.text == "⚙️ Управление админами")
 async def owner_manage_admins(message: Message):
     role = get_user_role(message.from_user.id, message.from_user.username or "")
