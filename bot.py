@@ -287,7 +287,8 @@ def main_keyboard(role: str):
     if role == "owner":
         kb.append([KeyboardButton(text="👑 Жалобы на админов")])
         kb.append([KeyboardButton(text="⚙️ Управление админами"), KeyboardButton(text="📊 Все жалобы")])
-        kb.append([KeyboardButton(text="✏️ Изменить правила"), KeyboardButton(text="➕ Добавить новость")])
+        kb.append([KeyboardButton(text="✏️ Изменить правила")])
+        kb.append([KeyboardButton(text="➕ Добавить новость"), KeyboardButton(text="🗑 Удалить новости")])
         kb.append([KeyboardButton(text="📢 Объявление (Рассылка)")])
     return ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True)
 
@@ -355,7 +356,7 @@ async def show_news(message: Message):
         return
         
     text_val, media_type, file_id = row
-    caption_text = f"📰 **Свежие новости Деревенск РП:**\n\n{text_val or ''}"
+    caption_text = f"📰 **Свежие новости Деревенск РП:**\n\n{text_val if text_val else ''}"
     
     if media_type == "photo":
         await message.answer_photo(file_id, caption=caption_text, parse_mode="Markdown")
@@ -364,7 +365,7 @@ async def show_news(message: Message):
     else:
         await message.answer(caption_text, parse_mode="Markdown")
 
-# --- OWNER EDIT RULES & NEWS & BROADCAST ---
+# --- OWNER EDIT RULES & NEWS & DELETE NEWS & BROADCAST ---
 @router.message(F.text == "✏️ Изменить правила")
 async def edit_rules_start(message: Message, state: FSMContext):
     if get_user_role(message.from_user.id, message.from_user.username or "") != "owner":
@@ -387,7 +388,7 @@ async def add_news_start(message: Message, state: FSMContext):
 
 @router.message(OwnerStates.waiting_for_new_news)
 async def process_new_news(message: Message, state: FSMContext):
-    text_val = message.caption if message.caption else message.text
+    text_val = message.caption if message.caption else (message.text if message.text else "")
     media_type = "text"
     file_id = None
     
@@ -403,6 +404,14 @@ async def process_new_news(message: Message, state: FSMContext):
     
     await state.clear()
     await message.answer("✅ Новость успешно опубликована!", reply_markup=main_keyboard("owner"))
+
+@router.message(F.text == "🗑 Удалить новости")
+async def delete_news_handler(message: Message):
+    if get_user_role(message.from_user.id, message.from_user.username or "") != "owner":
+        return
+    cursor.execute("DELETE FROM news")
+    conn.commit()
+    await message.answer("🗑 Все новости были успешно удалены!")
 
 @router.message(F.text == "📢 Объявление (Рассылка)")
 async def broadcast_start(message: Message, state: FSMContext):
