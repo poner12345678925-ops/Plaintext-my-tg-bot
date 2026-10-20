@@ -222,8 +222,16 @@ CREATE TABLE IF NOT EXISTS settings (
 )
 """)
 
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS news (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    text TEXT,
+    media_type TEXT,
+    file_id TEXT
+)
+""")
+
 cursor.execute("INSERT OR IGNORE INTO settings (key, value) VALUES ('rules', ?)", (DEFAULT_RULES,))
-cursor.execute("INSERT OR IGNORE INTO settings (key, value) VALUES ('news', 'Пока свежих новостей нет.')")
 conn.commit()
 
 # --- FSM STATES ---
@@ -339,8 +347,22 @@ async def show_rules(message: Message):
 
 @router.message(F.text == "📰 Новости")
 async def show_news(message: Message):
-    news_text = get_setting("news")
-    await message.answer(f"📰 **Свежие новости Деревенск РП:**\n\n{news_text}", parse_mode="Markdown")
+    cursor.execute("SELECT text, media_type, file_id FROM news ORDER BY id DESC LIMIT 1")
+    row = cursor.fetchone()
+    
+    if not row:
+        await message.answer("📰 **Свежие новости Деревенск РП:**\n\nПока свежих новостей нет.")
+        return
+        
+    text_val, media_type, file_id = row
+    caption_text = f"📰 **Свежие новости Деревенск РП:**\n\n{text_val or ''}"
+    
+    if media_type == "photo":
+        await message.answer_photo(file_id, caption=caption_text, parse_mode="Markdown")
+    elif media_type == "video":
+        await message.answer_video(file_id, caption=caption_text, parse_mode="Markdown")
+    else:
+        await message.answer(caption_text, parse_mode="Markdown")
 
 # --- OWNER EDIT RULES & NEWS & BROADCAST ---
 @router.message(F.text == "✏️ Изменить правила")
@@ -361,11 +383,24 @@ async def add_news_start(message: Message, state: FSMContext):
     if get_user_role(message.from_user.id, message.from_user.username or "") != "owner":
         return
     await state.set_state(OwnerStates.waiting_for_new_news)
-    await message.answer("Напишите текст новости для опубликования:")
+    await message.answer("Отправьте новость (это может быть текст, фото с подписью или видео с подписью):")
 
 @router.message(OwnerStates.waiting_for_new_news)
 async def process_new_news(message: Message, state: FSMContext):
-    set_setting("news", message.text)
+    text_val = message.caption if message.caption else message.text
+    media_type = "text"
+    file_id = None
+    
+    if message.photo:
+        media_type = "photo"
+        file_id = message.photo[-1].file_id
+    elif message.video:
+        media_type = "video"
+        file_id = message.video.file_id
+        
+    cursor.execute("INSERT INTO news (text, media_type, file_id) VALUES (?, ?, ?)", (text_val, media_type, file_id))
+    conn.commit()
+    
     await state.clear()
     await message.answer("✅ Новость успешно опубликована!", reply_markup=main_keyboard("owner"))
 
@@ -374,11 +409,10 @@ async def broadcast_start(message: Message, state: FSMContext):
     if get_user_role(message.from_user.id, message.from_user.username or "") != "owner":
         return
     await state.set_state(OwnerStates.waiting_for_broadcast)
-    await message.answer("📢 Введите текст объявления, которое будет отправлено **ВСЕМ** пользователям бота:")
+    await message.answer("📢 Отправьте объявление для рассылки всем игрокам (любой формат: текст, фото, видео, кружочек и т.д.):")
 
 @router.message(OwnerStates.waiting_for_broadcast)
 async def process_broadcast(message: Message, state: FSMContext):
-    text = message.text
     await state.clear()
     
     cursor.execute("SELECT user_id FROM users")
@@ -388,7 +422,7 @@ async def process_broadcast(message: Message, state: FSMContext):
     await message.answer("🚀 Рассылка запущена...")
     for u in users:
         try:
-            await bot.send_message(u[0], f"📢 **ОБЪЯВЛЕНИЕ ОТ ВЛАДЕЛЬЦА:**\n\n{text}", parse_mode="Markdown")
+            await message.copy_to(chat_id=u[0])
             count += 1
             await asyncio.sleep(0.05)
         except Exception:
