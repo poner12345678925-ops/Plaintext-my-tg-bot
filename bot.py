@@ -19,6 +19,177 @@ OWNER_USERNAME = "Onqirs"  # Ник владельца без @
 
 logging.basicConfig(level=logging.INFO)
 
+# --- DEFAULT RULES TEXT ---
+DEFAULT_RULES = """📜 **ПРАВИЛА СЕРВЕРА ДЕРЕВЕНСК РП**
+
+1.1 ДМ (Deathmatch)
+- Первое нарушение: мут 1 час + кик.
+- Повторное (в течение 7 дней): бан 1 день.
+- Третье (в течение 14 дней): бан 3 дня.
+- Систематика (4+): перманентный бан.
+
+1.2 МДМ (Mass Deathmatch)
+- Первое нарушение: бан 3 дня (без предупреждения).
+- Повторное: бан 7 дней.
+- Третье: перманентный бан.
+
+1.3 ПДМ (Провокация ради ДМ)
+- Первое нарушение: мут 2 часа + кик.
+- Повторное: бан 1 день.
+- Третье: бан 3 дня.
+
+1.4 ДБ (Driveby)
+- Первое нарушение: мут 1 час + кик.
+- Повторное: бан 1 день.
+- Систематика: бан 3 дня.
+
+1.5 СК (Spawnkill)
+- Первое нарушение: бан 1 день.
+- Повторное: бан 3 дня.
+- Третье: бан 7 дней.
+
+1.6 РК (Revenge Kill)
+- Первое нарушение: предупреждение + кик.
+- Повторное: мут 2 часа.
+- Третье: бан 1 день.
+
+1.7 ТК (Team Kill)
+- Первое нарушение: мут 30 минут.
+- Повторное: мут 2 часа.
+- Третье: бан 1 день.
+
+1.8 КНС (Kill No Scene)
+- Первое нарушение: мут 1 час.
+- Повторное: бан 1 день.
+- Третье: бан 3 дня.
+
+2.1 МГ (Metagaming)
+- Лёгкое (1–2 фразы): предупреждение + мут 15 минут.
+- Использование инфы для преимущества: мут 1 час + кик.
+- Рецидив: бан 1 день.
+
+2.2 НРП (Non-RP поведение)
+- Единичный случай: предупреждение.
+- Намеренное нарушение логики мира: мут 1 час.
+- Систематика: бан 1–3 дня.
+
+2.3 Годмод (Godmodding)
+- Первое нарушение: мут 30 минут + требование отыграть последствия.
+- Повторное: мут 2 часа + бан 1 день.
+- Серия случаев (3+ за 7 дней): бан 7 дней.
+
+2.4 ПГ (Powergaming)
+- Первое нарушение: предупреждение + мут 15 минут.
+- Повторное: мут 1 час.
+- Третье: бан 1 день.
+
+2.5 ФРП (Force RP)
+- Первое нарушение: мут 30 минут + отмена сцены.
+- Повторное: мут 2 часа.
+- Третье: бан 1 день.
+
+2.6 БХ (Bunnyhop)
+- Первое нарушение: кик + предупреждение.
+- Повторное: мут 1 час.
+- Третье: бан 1 день.
+
+3.1 Дюп (копирование предметов/денег)
+- Любой случай: бан 7 дней + конфискация всех дюпнутых ресурсов.
+- Рецидив: перманентный бан.
+
+3.4 Спидхак / Флайхак
+- Первое нарушение: бан 3 дня.
+- Повторное: перманентный бан.
+
+3.5 Аимбот / Aimlock
+- Любой случай: перманентный бан (без предупреждения).
+
+3.6 Телепорт / Telehack
+- Первое нарушение: бан 3 дня.
+- Повторное: перманентный бан.
+
+3.7 Невидимка / Инвисклон
+- Любой случай: бан 7 дней.
+- Рецидив: перманентный бан.
+
+3.8 Афк-ферма (макросы, автокликеры)
+- Первое нарушение: кик + обнуление заработанного.
+- Повторное: бан 1 день.
+- Третье: бан 3 дня.
+
+3.9 Лаг-эксплойт (Lag Switch)
+- Первое нарушение: бан 1 день.
+- Повторное: бан 7 дней.
+- Третье: перманентный бан.
+
+3.10 Сокрытие багоузов
+- Знание о баге и молчание: предупреждение.
+- Использование и сокрытие: бан 3 дня.
+- Сообщение о баге администрации: безнаказанно (поощряется).
+
+4.1 Оск (оскорбление игрока вне роли) (оск родных наказывается смотря на сколько жестоко оскорбление)
+- Первое нарушение: мут 30 минут.
+- Повторное (в течение 7 дней): мут 4 часа.
+- Третье: бан 1 день.
+- Систематика: бан 3 дня.
+
+4.2 Оск. адм (оскорбление администрации)
+- Первое нарушение: мут 2 часа.
+- Повторное: бан 1 день.
+- Третье: бан 3 дня.
+
+4.3 Провок (целенаправленная провокация на нарушение)
+- Первое нарушение: мут 1 час.
+- Повторное: мут 4 часа.
+- Третье: бан 1 день.
+
+4.4 Буллинг (систематическое травление игрока)
+- Первое нарушение: бан 1 день.
+- Повторное: бан 7 дней.
+- Третье: перманентный бан.
+
+4.5 Дискрим (дискриминация по расе, полу, религии, национальности)
+- Первое нарушение: бан 1 день.
+- Повторное: бан 7 дней.
+- Третье: перманентный бан.
+
+4.6 Угроза ОЖ (угрозы реальной жизнью/здоровьем)
+- Первое нарушение: перманентный бан (без исключений).
+
+4.7 Докс (распространение личных данных)
+- Первое нарушение: перманентный бан (без исключений).
+
+4.8 Троллинг (разрушение ролевых сцен без цели играть)
+- Первое нарушение: кик + предупреждение.
+- Повторное: мут 2 часа.
+- Третье: бан 1 день.
+- Систематика: бан 3 дня.
+
+4.9 Мн. акк (мультиаккаунт для обхода бана)
+- Основной аккаунт: увеличение бана вдвое.
+- Дополнительные аккаунты: перманентный бан всех.
+
+5.1 Спам / Капс
+- Спам (3+ одинаковых сообщения): мут 15 минут.
+- Капс (50%+ заглавными): мут 10 минут.
+- Рецидив: мут 1 час.
+
+5.2 Реклама (сторонние проекты, ссылки, Discord без разрешения)
+- Первое нарушение: мут 1 час + удаление сообщения.
+- Повторное: бан 1 день.
+- Третье: бан 3 дня.
+
+5.3 Читинг (сторонние программы, инжекторы, эксплойты)
+- Любой случай: перманентный бан (без предупреждения).
+
+5.4 НРП‑форма (несоответствие внешнего вида роли)
+НРП‑форма — это несоответствие экипировки, униформы или внешнего вида персонажа его роли, профессии и сеттингу сервера.
+Шкала наказаний:
+- Первое нарушение: предупреждение + требование переодеться.
+- Повторное (в течение 7 дней): мут 30 минут + кик.
+- Третье: мут 2 часа + бан 1 день.
+- Систематика (4+): бан 3 дня + снятие с должности."""
+
 # --- DATABASE SETUP ---
 conn = sqlite3.connect("bot_data.db", check_same_thread=False)
 cursor = conn.cursor()
@@ -38,21 +209,21 @@ CREATE TABLE IF NOT EXISTS complaints (
     target_type TEXT,
     target_name TEXT,
     text TEXT,
+    video_file_id TEXT,
     status TEXT DEFAULT 'pending',
     assigned_admin_id INTEGER DEFAULT NULL
 )
 """)
 
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS messages (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    complaint_id INTEGER,
-    sender_id INTEGER,
-    sender_role TEXT,
-    text TEXT,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    value TEXT
 )
 """)
+
+cursor.execute("INSERT OR IGNORE INTO settings (key, value) VALUES ('rules', ?)", (DEFAULT_RULES,))
+cursor.execute("INSERT OR IGNORE INTO settings (key, value) VALUES ('news', 'Пока свежих новостей нет.')")
 conn.commit()
 
 # --- FSM STATES ---
@@ -60,6 +231,7 @@ class ComplaintStates(StatesGroup):
     waiting_for_target_type = State()
     waiting_for_target_name = State()
     waiting_for_text = State()
+    waiting_for_video = State()
 
 class AdminChatState(StatesGroup):
     chatting = State()
@@ -67,6 +239,9 @@ class AdminChatState(StatesGroup):
 class OwnerStates(StatesGroup):
     waiting_for_add_admin_id = State()
     waiting_for_remove_admin_id = State()
+    waiting_for_new_rules = State()
+    waiting_for_new_news = State()
+    waiting_for_broadcast = State()
 
 # --- HELPERS ---
 def get_user_role(user_id: int, username: str = "") -> str:
@@ -84,14 +259,28 @@ def set_user_role(user_id: int, role: str):
     cursor.execute("INSERT INTO users (user_id, role) VALUES (?, ?) ON CONFLICT(user_id) DO UPDATE SET role=?", (user_id, role, role))
     conn.commit()
 
+def get_setting(key: str) -> str:
+    cursor.execute("SELECT value FROM settings WHERE key = ?", (key,))
+    row = cursor.fetchone()
+    return row[0] if row else ""
+
+def set_setting(key: str, value: str):
+    cursor.execute("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=?", (key, value, value))
+    conn.commit()
+
 # --- KEYBOARDS ---
 def main_keyboard(role: str):
-    kb = [[KeyboardButton(text="📝 Подать жалобу")]]
+    kb = [
+        [KeyboardButton(text="📝 Подать жалобу")],
+        [KeyboardButton(text="📜 Правила"), KeyboardButton(text="📰 Новости")]
+    ]
     if role in ["admin", "owner"]:
         kb.append([KeyboardButton(text="📋 Жалобы на игроков")])
     if role == "owner":
         kb.append([KeyboardButton(text="👑 Жалобы на админов")])
         kb.append([KeyboardButton(text="⚙️ Управление админами"), KeyboardButton(text="📊 Все жалобы")])
+        kb.append([KeyboardButton(text="✏️ Изменить правила"), KeyboardButton(text="➕ Добавить новость")])
+        kb.append([KeyboardButton(text="📢 Объявление (Рассылка)")])
     return ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True)
 
 def target_type_kb():
@@ -100,7 +289,7 @@ def target_type_kb():
         [InlineKeyboardButton(text="🛡 На администратора", callback_data="type_admin")]
     ])
 
-def complaint_action_kb(complaint_id: int, status: str, assigned_admin_id: int, user_id: int):
+def complaint_action_kb(complaint_id: int, status: str):
     buttons = []
     if status == "pending":
         buttons.append([InlineKeyboardButton(text="🛠 Взять в работу", callback_data=f"take_{complaint_id}")])
@@ -134,13 +323,84 @@ async def cmd_start(message: Message, state: FSMContext):
         conn.commit()
 
     await message.answer(
-        f"Привет, {message.from_user.first_name}!\n"
-        f"Ваша роль: **{role.upper()}**\n\n"
+        f"Добро пожаловать в бота Деревенск рп.\n\n"
+        f"Ваша роль: **{role.upper()}**\n"
         "Выберите действие в меню снизу:",
         reply_markup=main_keyboard(role),
         parse_mode="Markdown"
     )
 
+# --- RULES & NEWS ---
+@router.message(F.text == "📜 Правила")
+async def show_rules(message: Message):
+    rules_text = get_setting("rules")
+    # Текст правил может быть длинным, разделяем при необходимости
+    if len(rules_text) > 4000:
+        for x in range(0, len(rules_text), 4000):
+            await message.answer(rules_text[x:x+4000], parse_mode="Markdown")
+    else:
+        await message.answer(rules_text, parse_mode="Markdown")
+
+@router.message(F.text == "📰 Новости")
+async def show_news(message: Message):
+    news_text = get_setting("news")
+    await message.answer(f"📰 **Свежие новости Деревенск РП:**\n\n{news_text}", parse_mode="Markdown")
+
+# --- OWNER EDIT RULES & NEWS & BROADCAST ---
+@router.message(F.text == "✏️ Изменить правила")
+async def edit_rules_start(message: Message, state: FSMContext):
+    if get_user_role(message.from_user.id, message.from_user.username or "") != "owner":
+        return
+    await state.set_state(OwnerStates.waiting_for_new_rules)
+    await message.answer("Отправьте новый текст правил сервера:")
+
+@router.message(OwnerStates.waiting_for_new_rules)
+async def process_new_rules(message: Message, state: FSMContext):
+    set_setting("rules", message.text)
+    await state.clear()
+    await message.answer("✅ Правила сервера успешно обновлены!", reply_markup=main_keyboard("owner"))
+
+@router.message(F.text == "➕ Добавить новость")
+async def add_news_start(message: Message, state: FSMContext):
+    if get_user_role(message.from_user.id, message.from_user.username or "") != "owner":
+        return
+    await state.set_state(OwnerStates.waiting_for_new_news)
+    await message.answer("Напишите текст новости для опубликования:")
+
+@router.message(OwnerStates.waiting_for_new_news)
+async def process_new_news(message: Message, state: FSMContext):
+    set_setting("news", message.text)
+    await state.clear()
+    await message.answer("✅ Новость успешно опубликована!", reply_markup=main_keyboard("owner"))
+
+@router.message(F.text == "📢 Объявление (Рассылка)")
+async def broadcast_start(message: Message, state: FSMContext):
+    if get_user_role(message.from_user.id, message.from_user.username or "") != "owner":
+        return
+    await state.set_state(OwnerStates.waiting_for_broadcast)
+    await message.answer("📢 Введите текст объявления, которое будет отправлено **ВСЕМ** пользователям бота:")
+
+@router.message(OwnerStates.waiting_for_broadcast)
+async def process_broadcast(message: Message, state: FSMContext):
+    text = message.text
+    await state.clear()
+    
+    cursor.execute("SELECT user_id FROM users")
+    users = cursor.fetchall()
+    
+    count = 0
+    await message.answer("🚀 Рассылка запущена...")
+    for u in users:
+        try:
+            await bot.send_message(u[0], f"📢 **ОБЪЯВЛЕНИЕ ОТ ВЛАДЕЛЬЦА:**\n\n{text}", parse_mode="Markdown")
+            count += 1
+            await asyncio.sleep(0.05) # Небольшая пауза чтобы Telegram не забанил
+        except Exception:
+            pass
+            
+    await message.answer(f"✅ Рассылка завершена! Сообщение получили {count} пользователей.", reply_markup=main_keyboard("owner"))
+
+# --- COMPLAINT SUBMISSION FLOW ---
 @router.message(F.text == "📝 Подать жалобу")
 async def start_complaint(message: Message, state: FSMContext):
     await state.set_state(ComplaintStates.waiting_for_target_type)
@@ -164,46 +424,38 @@ async def process_target_name(message: Message, state: FSMContext):
 
 @router.message(ComplaintStates.waiting_for_text)
 async def process_text(message: Message, state: FSMContext):
+    await state.update_data(text=message.text)
+    await state.set_state(ComplaintStates.waiting_for_video)
+    await message.answer("⚠️ **Обязательно прикрепите видео-доказательство** (отправьте видеофайлом или кружочком/видео):")
+
+@router.message(ComplaintStates.waiting_for_video, F.video | F.document)
+async def process_video(message: Message, state: FSMContext):
     data = await state.get_data()
     user_id = message.from_user.id
     
+    video_id = message.video.file_id if message.video else message.document.file_id
+    
     cursor.execute(
-        "INSERT INTO complaints (user_id, target_type, target_name, text) VALUES (?, ?, ?, ?)",
-        (user_id, data['target_type'], data['target_name'], message.text)
+        "INSERT INTO complaints (user_id, target_type, target_name, text, video_file_id) VALUES (?, ?, ?, ?, ?)",
+        (user_id, data['target_type'], data['target_name'], data['text'], video_id)
     )
     conn.commit()
-    complaint_id = cursor.lastrowid
     
     await state.clear()
-    await message.answer("✅ Ваша жалоба успешно отправлена и принята на рассмотрение!", reply_markup=main_keyboard(get_user_role(user_id, message.from_user.username or "")))
-    
-    target_str = "Игрока" if data['target_type'] == "player" else "Администратора"
-    notify_text = f"🚨 **Новая жалоба #{complaint_id}** (На {target_str})\nОт: ID {user_id}\nНа кого: {data['target_name']}\n\nТекст: {message.text}"
-    
-    if data['target_type'] == "player":
-        cursor.execute("SELECT user_id FROM users WHERE role IN ('admin', 'owner')")
-        admins = cursor.fetchall()
-        for adm in admins:
-            try:
-                await bot.send_message(adm[0], notify_text, parse_mode="Markdown")
-            except Exception:
-                pass
-    else:
-        cursor.execute("SELECT user_id FROM users WHERE role = 'owner'")
-        owners = cursor.fetchall()
-        for ow in owners:
-            try:
-                await bot.send_message(ow[0], notify_text, parse_mode="Markdown")
-            except Exception:
-                pass
+    await message.answer("✅ Ваша жалоба успешно создана и отправлена в систему!", reply_markup=main_keyboard(get_user_role(user_id, message.from_user.username or "")))
 
+@router.message(ComplaintStates.waiting_for_video)
+async def process_wrong_video(message: Message):
+    await message.answer("❌ Без видео-доказательства жалоба не может быть принята. Пожалуйста, отправьте видеофайл.")
+
+# --- LISTS & MANAGEMENT ---
 @router.message(F.text == "📋 Жалобы на игроков")
 async def list_player_complaints(message: Message):
     role = get_user_role(message.from_user.id, message.from_user.username or "")
     if role not in ["admin", "owner"]:
         return
 
-    cursor.execute("SELECT id, user_id, target_name, text, status, assigned_admin_id FROM complaints WHERE target_type = 'player' AND (status = 'pending' OR assigned_admin_id = ?)", (message.from_user.id,))
+    cursor.execute("SELECT id, user_id, target_name, text, status, assigned_admin_id, video_file_id FROM complaints WHERE target_type = 'player' AND (status = 'pending' OR assigned_admin_id = ?)", (message.from_user.id,))
     rows = cursor.fetchall()
     
     if not rows:
@@ -211,10 +463,14 @@ async def list_player_complaints(message: Message):
         return
         
     for row in rows:
-        cid, uid, tname, text, status, admin_id = row
+        cid, uid, tname, text, status, admin_id, vid = row
         st_text = "Ожидает" if status == "pending" else "В работе"
         msg = f"📌 **Жалоба #{cid}** [{st_text}]\nИгрок: {tname}\nОт ID: {uid}\nТекст: {text}"
-        await message.answer(msg, reply_markup=complaint_action_kb(cid, status, admin_id, message.from_user.id), parse_mode="Markdown")
+        
+        if vid:
+            await message.answer_video(vid, caption=msg, reply_markup=complaint_action_kb(cid, status), parse_mode="Markdown")
+        else:
+            await message.answer(msg, reply_markup=complaint_action_kb(cid, status), parse_mode="Markdown")
 
 @router.message(F.text == "👑 Жалобы на админов")
 async def list_admin_complaints(message: Message):
@@ -222,7 +478,7 @@ async def list_admin_complaints(message: Message):
     if role != "owner":
         return
 
-    cursor.execute("SELECT id, user_id, target_name, text, status, assigned_admin_id FROM complaints WHERE target_type = 'admin'")
+    cursor.execute("SELECT id, user_id, target_name, text, status, assigned_admin_id, video_file_id FROM complaints WHERE target_type = 'admin'")
     rows = cursor.fetchall()
     
     if not rows:
@@ -230,10 +486,14 @@ async def list_admin_complaints(message: Message):
         return
         
     for row in rows:
-        cid, uid, tname, text, status, admin_id = row
+        cid, uid, tname, text, status, admin_id, vid = row
         st_map = {"pending": "Ожидает", "in_progress": "В работе", "accepted": "Принята", "rejected": "Отклонена"}
         msg = f"🛡 **Жалоба на Админа #{cid}** [{st_map.get(status, status)}]\nАдмин: {tname}\nОт ID: {uid}\nТекст: {text}"
-        await message.answer(msg, reply_markup=complaint_action_kb(cid, status, admin_id, message.from_user.id), parse_mode="Markdown")
+        
+        if vid:
+            await message.answer_video(vid, caption=msg, reply_markup=complaint_action_kb(cid, status), parse_mode="Markdown")
+        else:
+            await message.answer(msg, reply_markup=complaint_action_kb(cid, status), parse_mode="Markdown")
 
 @router.message(F.text == "📊 Все жалобы")
 async def owner_all_complaints(message: Message):
@@ -268,7 +528,10 @@ async def take_complaint(callback: CallbackQuery):
     conn.commit()
     
     await callback.answer("Вы успешно взяли жалобу в работу!")
-    await callback.message.edit_text(callback.message.text + "\n\n🛠 **Статус:** Взята в работу вами.", reply_markup=complaint_action_kb(cid, "in_progress", admin_id, admin_id), parse_mode="Markdown")
+    if callback.message.caption:
+        await callback.message.edit_caption(caption=callback.message.caption + "\n\n🛠 **Статус:** Взята в работу вами.", reply_markup=complaint_action_kb(cid, "in_progress"), parse_mode="Markdown")
+    else:
+        await callback.message.edit_text(callback.message.text + "\n\n🛠 **Статус:** Взята в работу вами.", reply_markup=complaint_action_kb(cid, "in_progress"), parse_mode="Markdown")
 
 @router.callback_query(F.data.startswith("chat_"))
 async def open_complaint_chat(callback: CallbackQuery, state: FSMContext):
@@ -276,7 +539,7 @@ async def open_complaint_chat(callback: CallbackQuery, state: FSMContext):
     await state.set_state(AdminChatState.chatting)
     await state.update_data(active_complaint_id=cid)
     
-    await callback.message.answer(f"💬 Вы вошли в чат по жалобе #{cid}.\nВсе ваши следующие текстовые сообщения будут отправляться автору жалобы.\n\nЧтобы закончить/закрыть диалог, измените статус жалобы на Принято/Отклонено.", reply_markup=ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text="❌ Выйти из чата жалобы")]], resize_keyboard=True))
+    await callback.message.answer(f"💬 Вы вошли в чат по жалобе #{cid}.\nВсе ваши сообщения будут отправляться автору жалобы.\n\nЧтобы выйти, нажмите кнопку ниже.", reply_markup=ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text="❌ Выйти из чата жалобы")]], resize_keyboard=True))
     await callback.answer()
 
 @router.message(AdminChatState.chatting)
@@ -296,9 +559,9 @@ async def process_chat_message(message: Message, state: FSMContext):
         target_user_id = row[0]
         try:
             await bot.send_message(target_user_id, f"💬 **Ответ от администрации по вашей жалобе #{cid}:**\n\n{message.text}", parse_mode="Markdown")
-            await message.answer(f"Сообщение успешно отправлено пользователю!")
+            await message.answer("Сообщение успешно отправлено пользователю!")
         except Exception as e:
-            await message.answer(f"Ошибка при отправке сообщения: {e}")
+            await message.answer(f"Ошибка при отправке: {e}")
 
 @router.callback_query(F.data.startswith("status_"))
 async def change_status(callback: CallbackQuery):
@@ -317,7 +580,10 @@ async def change_status(callback: CallbackQuery):
         except Exception:
             pass
 
-    await callback.message.edit_text(callback.message.text + f"\n\nРешение: **{status_ru}**", parse_mode="Markdown")
+    if callback.message.caption:
+        await callback.message.edit_caption(caption=callback.message.caption + f"\n\nРешение: **{status_ru}**", parse_mode="Markdown")
+    else:
+        await callback.message.edit_text(callback.message.text + f"\n\nРешение: **{status_ru}**", parse_mode="Markdown")
     await callback.answer("Статус жалобы обновлен!")
 
 @router.message(F.text == "⚙️ Управление админами")
@@ -336,7 +602,7 @@ async def owner_manage_admins(message: Message):
 @router.callback_query(F.data == "add_admin")
 async def start_add_admin(callback: CallbackQuery, state: FSMContext):
     await state.set_state(OwnerStates.waiting_for_add_admin_id)
-    await callback.message.answer("Введите Telegram ID пользователя, которому нужно выдать админку:")
+    await callback.message.answer("Введите Telegram ID пользователя:")
     await callback.answer()
 
 @router.message(OwnerStates.waiting_for_add_admin_id)
@@ -345,14 +611,14 @@ async def process_add_admin(message: Message, state: FSMContext):
         uid = int(message.text.strip())
         set_user_role(uid, "admin")
         await state.clear()
-        await message.answer(f"✅ Пользователь с ID `{uid}` успешно назначен Администратором!", parse_mode="Markdown")
+        await message.answer(f"✅ Пользователь с ID `{uid}` теперь Администратор!", parse_mode="Markdown")
     except ValueError:
-        await message.answer("Пожалуйста, введите корректный числовой Telegram ID.")
+        await message.answer("Введите корректный числовой Telegram ID.")
 
 @router.callback_query(F.data == "remove_admin")
 async def start_remove_admin(callback: CallbackQuery, state: FSMContext):
     await state.set_state(OwnerStates.waiting_for_remove_admin_id)
-    await callback.message.answer("Введите Telegram ID администратора, у которого нужно забрать права:")
+    await callback.message.answer("Введите Telegram ID администратора:")
     await callback.answer()
 
 @router.message(OwnerStates.waiting_for_remove_admin_id)
@@ -361,9 +627,9 @@ async def process_remove_admin(message: Message, state: FSMContext):
         uid = int(message.text.strip())
         set_user_role(uid, "player")
         await state.clear()
-        await message.answer(f"🚫 У пользователя с ID `{uid}` забраны права администратора.", parse_mode="Markdown")
+        await message.answer(f"🚫 У пользователя с ID `{uid}` забраны права.", parse_mode="Markdown")
     except ValueError:
-        await message.answer("Пожалуйста, введите корректный числовой Telegram ID.")
+        await message.answer("Введите корректный числовой Telegram ID.")
 
 @router.callback_query(F.data == "list_admins")
 async def list_admins_call(callback: CallbackQuery):
