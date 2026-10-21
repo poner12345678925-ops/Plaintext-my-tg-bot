@@ -1,6 +1,8 @@
 import asyncio
 import logging
+import os
 import sqlite3
+from aiohttp import web
 from aiogram import Bot, Dispatcher, F, Router
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
@@ -486,7 +488,7 @@ async def process_video(message: Message, state: FSMContext):
 
 @router.message(ComplaintStates.waiting_for_video)
 async def process_wrong_video(message: Message):
-    await message.answer("❌ Без видео-доказательства жалоба не может быть принята. Пожалуйста, отправьте видеофайл.")
+    await message.answer("❌ Без видео-доказательства жалоба не может быть принята. Пожалуйста, отправьте видеофайлом.")
 
 # --- COMPLAINTS LISTS & TAKING BY NUMBER ---
 @router.message(F.text == "📋 Жалобы на игроков")
@@ -719,7 +721,22 @@ async def list_admins_call(callback: CallbackQuery):
         await callback.message.answer(msg, parse_mode="Markdown")
     await callback.answer()
 
+# --- WEB HEALTH CHECK FOR RENDER ---
+async def handle_ping(request):
+    return web.Response(text="Bot is running OK!")
+
+async def start_web_server():
+    app = web.Application()
+    app.router.add_get("/", handle_ping)
+    port = int(os.environ.get("PORT", 8080))
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+
 async def main():
+    print("Запускаем веб-сервер проверки для Render...")
+    await start_web_server()
     print("Бот успешно запущен!")
     await dp.start_polling(bot)
 
